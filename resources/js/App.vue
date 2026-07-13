@@ -88,9 +88,10 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useStore } from './store'
 import { api } from './api'
+import { supabase } from './supabase'
 import { useCallStats } from './composables/useCallStats'
 import Login from './components/Login.vue'
 import Inicio from './components/Inicio.vue'
@@ -106,7 +107,7 @@ const logoUrl = `${import.meta.env.BASE_URL}img/logo.png`
 const currentView = computed(() => store.state.currentView)
 const user = computed(() => store.state.user)
 
-const userName = computed(() => user.value?.name || 'Administrador')
+const userName = computed(() => user.value?.user_metadata?.name || 'Administrador')
 const userEmail = computed(() => user.value?.email || '')
 const iniciales = computed(() => {
   const parts = userName.value.split(' ')
@@ -145,17 +146,35 @@ const dismissAlert = async (id) => {
   } catch (_) {}
 }
 
-onMounted(() => {
-  if (store.isAuthenticated.value) {
-    store.setCurrentView('inicio')
-    api.getUser().then(store.setUser).catch(() => {
-      store.setToken(null)
-      store.setUser(null)
-      store.setCurrentView('login')
-    })
+// Dispara la carga de datos apenas alguien queda autenticado, sin importar
+// si fue por sesión restaurada al abrir la app o por el formulario de login.
+watch(user, (newUser, oldUser) => {
+  if (newUser && !oldUser) {
     loadData()
     loadAlerts()
   }
+})
+
+onMounted(async () => {
+  const { data } = await supabase.auth.getSession()
+  if (data.session) {
+    store.setUser(data.session.user)
+    store.setToken(data.session.access_token)
+    store.setCurrentView('inicio')
+  } else {
+    store.setCurrentView('login')
+  }
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+      store.setUser(null)
+      store.setToken(null)
+      store.setCurrentView('login')
+    } else if (session) {
+      store.setUser(session.user)
+      store.setToken(session.access_token)
+    }
+  })
 })
 </script>
 

@@ -1,8 +1,10 @@
 import { reactive, computed } from 'vue'
 
+// La sesión ya no se guarda a mano: el cliente de Supabase la persiste sola
+// en su propio almacenamiento. Aquí solo reflejamos su estado actual.
 const state = reactive({
   user: null,
-  token: localStorage.getItem('token'),
+  token: null,
   currentView: 'login',
   today: null,
   history: [],
@@ -12,11 +14,7 @@ const state = reactive({
 
 export const useStore = () => {
   const setUser = (user) => { state.user = user }
-  const setToken = (token) => {
-    state.token = token
-    if (token) localStorage.setItem('token', token)
-    else localStorage.removeItem('token')
-  }
+  const setToken = (token) => { state.token = token }
   const setCurrentView = (view) => { state.currentView = view }
   const setToday = (today) => { state.today = today }
   const setHistory = (history) => { state.history = history }

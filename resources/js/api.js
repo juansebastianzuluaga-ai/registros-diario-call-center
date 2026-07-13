@@ -1,52 +1,65 @@
-import { useStore } from './store'
+import { supabase } from './supabase'
 
-const API_BASE = '/api'
-
-const getHeaders = () => {
-  const store = useStore()
-  const headers = { 'Content-Type': 'application/json' }
-  if (store.state.token) {
-    headers['Authorization'] = `Bearer ${store.state.token}`
-  }
-  return headers
+const throwIfError = (error) => {
+  if (error) throw new Error(error.message)
 }
 
-const request = async (url, options = {}) => {
-  const response = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers: {
-      ...getHeaders(),
-      ...options.headers
-    }
-  })
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.message || `Error ${response.status}`)
-  }
-
-  if (response.status === 204) return null
-  return response.json()
-}
+const todayStr = () => new Date().toISOString().slice(0, 10)
 
 export const api = {
-  login: (credentials) => request('/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials)
-  }),
-  logout: () => request('/logout', { method: 'POST' }),
-  getUser: () => request('/user'),
+  login: async ({ email, password }) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw new Error(error.message === 'Invalid login credentials' ? 'Las credenciales son incorrectas.' : error.message)
+    return { user: data.user, token: data.session.access_token }
+  },
+  logout: async () => {
+    const { error } = await supabase.auth.signOut()
+    throwIfError(error)
+  },
+  getUser: async () => {
+    const { data, error } = await supabase.auth.getUser()
+    throwIfError(error)
+    return data.user
+  },
 
-  getToday: () => request('/call-stats/today'),
-  getHistory: (from, to) => request(`/call-stats?from=${from}&to=${to}`),
-  getCampaignsRange: (from, to) => request(`/call-stats/campaigns/range?from=${from}&to=${to}`),
-  refresh: (date, dateTo) => request('/call-stats/refresh', {
-    method: 'POST',
-    body: JSON.stringify({ date, date_to: dateTo })
-  }),
-  getSyncJob: (id) => request(`/sync-jobs/${id}`),
-  getSyncLogs: () => request('/sync-logs'),
+  getToday: async () => {
+    const { data, error } = await supabase.from('call_stats').select('*').eq('date', todayStr()).maybeSingle()
+    throwIfError(error)
+    return data
+  },
+  getHistory: async (from, to) => {
+    const { data, error } = await supabase.from('call_stats').select('*').gte('date', from).lte('date', to).order('date')
+    throwIfError(error)
+    return data
+  },
+  getCampaignsRange: async (from, to) => {
+    const { data, error } = await supabase.rpc('campaigns_range', { from_date: from, to_date: to })
+    throwIfError(error)
+    return data
+  },
+  refresh: async (date, dateTo) => {
+    const { data, error } = await supabase.functions.invoke('trigger-sync', { body: { date, date_to: dateTo } })
+    throwIfError(error)
+    return data
+  },
+  getSyncJob: async (id) => {
+    const { data, error } = await supabase.from('sync_jobs').select('*').eq('id', id).single()
+    throwIfError(error)
+    return data
+  },
+  getSyncLogs: async () => {
+    const { data, error } = await supabase.from('sync_logs').select('*').order('created_at', { ascending: false }).limit(200)
+    throwIfError(error)
+    return data
+  },
 
-  getSystemAlerts: () => request('/system-alerts'),
-  dismissAlert: (id) => request(`/system-alerts/${id}/dismiss`, { method: 'POST' }),
+  getSystemAlerts: async () => {
+    const { data, error } = await supabase.from('system_alerts').select('*').is('resolved_at', null).order('created_at', { ascending: false })
+    throwIfError(error)
+    return data
+  },
+  dismissAlert: async (id) => {
+    const { error } = await supabase.from('system_alerts').update({ resolved_at: new Date().toISOString() }).eq('id', id)
+    throwIfError(error)
+  },
 }

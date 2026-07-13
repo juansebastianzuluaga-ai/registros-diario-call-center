@@ -52,6 +52,18 @@ import { downloadCsv } from '../utils/csv'
 
 const store = useStore()
 
+/**
+ * Orden fijo, como siempre se reportó en el Excel mensual de CAC Santa
+ * Bárbara. Cualquier campaña nueva en Zennia que no esté en esta lista
+ * se agrega al final, no se descarta.
+ */
+const CAMPAIGN_ORDER = [
+  'FOMAG', 'Talento_humano_CAC', 'Imagenes_Diagnosticas', 'CAC_SANTA_BARBARA',
+  'Programacion_de_cirugia', 'CAC_SB_EPS', 'CAC_SB_PAC', 'Referencia_Contrareferencia',
+  'CAC_SB_ARL', 'CAC_SB_MEDICINA_PREPAGADA', 'CAC_SB_OTROS', 'CAC_SB_Especialistas',
+  'CAC_SB_PARTICULARES',
+]
+
 const todayStr = () => new Date().toISOString().slice(0, 10)
 
 const now0 = new Date()
@@ -77,7 +89,12 @@ const applyPreset = (p) => {
 const loadRows = async () => {
   loading.value = true
   try {
-    rows.value = await api.getCampaignsRange(from.value, to.value)
+    const data = await api.getCampaignsRange(from.value, to.value)
+    rows.value = [...data].sort((a, b) => {
+      const ia = CAMPAIGN_ORDER.indexOf(a.nombre)
+      const ib = CAMPAIGN_ORDER.indexOf(b.nombre)
+      return (ia === -1 ? Infinity : ia) - (ib === -1 ? Infinity : ib)
+    })
   } catch (err) {
     store.showToast('Error al cargar las campañas', 'error')
   } finally {

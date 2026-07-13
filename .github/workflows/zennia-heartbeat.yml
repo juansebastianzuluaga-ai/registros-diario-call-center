@@ -1,0 +1,35 @@
+name: Zennia Heartbeat Sync
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      APP_KEY: ${{ secrets.APP_KEY }}
+      APP_ENV: production
+      DB_CONNECTION: supabase
+      SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
+      SUPABASE_DB_PORT: '5432'
+      SUPABASE_DB_DATABASE: postgres
+      SUPABASE_DB_USERNAME: postgres
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      ZENNIA_BASE_URL: https://cac-santabarbara.zennia.io
+      ZENNIA_USERNAME: ${{ secrets.ZENNIA_USERNAME }}
+      ZENNIA_PASSWORD: ${{ secrets.ZENNIA_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, pgsql, mbstring, dom, fileinfo
+
+      - name: Install dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+
+      - name: Sync today
+        run: php artisan zennia:heartbeat
