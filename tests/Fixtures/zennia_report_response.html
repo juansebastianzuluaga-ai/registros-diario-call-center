@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Reporte de llamadas</title></head>
+<body>
+<nav class="navbar">CAC Santa Bárbara - Zennia</nav>
+<form method="post" action="/reporte/llamadas/">
+    <input type="hidden" name="csrfmiddlewaretoken" value="report-csrf-token">
+    <input type="text" name="fecha" value="01/06/2026 - 01/06/2026">
+</form>
+<div id="resultados">
+    <table class="table"><tr><td>(tabla renderizada, no usada por el parser)</td></tr></table>
+</div>
+<form id="export-form" method="post" action="/reporte/llamadas/exportar/">
+    <input type="hidden" name="estadisticas" value="__ESTADISTICAS_JSON__">
+</form>
+<script>console.log('zennia dashboard scripts');</script>
+</body>
+</html>

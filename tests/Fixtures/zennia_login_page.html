@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Iniciar sesión</title></head>
+<body>
+<form method="post" action="/accounts/login/">
+    <input type="hidden" name="csrfmiddlewaretoken" value="login-csrf-token">
+    <input type="text" name="username">
+    <input type="password" name="password">
+    <input type="hidden" name="next" value="">
+</form>
+</body>
+</html>
