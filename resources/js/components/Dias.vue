@@ -123,6 +123,9 @@ onMounted(loadRows)
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  flex: 1 1 0%;
+  min-width: 0;
+  justify-content: flex-end;
 }
 
 .range-preset {
