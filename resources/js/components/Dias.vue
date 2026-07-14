@@ -122,7 +122,7 @@ onMounted(loadRows)
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .range-preset {
