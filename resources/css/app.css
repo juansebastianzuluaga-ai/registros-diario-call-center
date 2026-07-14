@@ -531,6 +531,8 @@ form {
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
@@ -563,6 +565,8 @@ form {
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
@@ -1026,6 +1030,8 @@ form {
 
 .panel-title-row .panel-title {
   margin-bottom: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .panel-title-row input[type="month"] {

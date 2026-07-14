@@ -136,6 +136,7 @@ onMounted(loadRows)
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .range-preset:hover { background: var(--azul-bg); color: var(--azul); }
