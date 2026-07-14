@@ -3,7 +3,7 @@
     <div class="panel-title-row">
       <div class="panel-title">Detalle por día</div>
       <div class="range-controls">
-        <button class="range-preset" :class="{ active: preset === '30' }" @click="applyPreset('30')">Últimos 30 días</button>
+        <button class="range-preset" :class="{ active: preset === '30' }" @click="applyPreset('30')">30 días</button>
         <button class="range-preset" :class="{ active: preset === 'month' }" @click="applyPreset('month')">Este mes</button>
         <button class="range-preset" :class="{ active: preset === 'all' }" @click="applyPreset('all')">Todo el historial</button>
         <input type="date" v-model="from" @change="preset = null">
