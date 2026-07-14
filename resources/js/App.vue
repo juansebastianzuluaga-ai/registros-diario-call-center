@@ -146,12 +146,34 @@ const dismissAlert = async (id) => {
   } catch (_) {}
 }
 
+// Mismo ritmo que el "heartbeat" del backend (cada 5 min) — así la pantalla
+// refleja los datos nuevos sola, sin que alguien tenga que recargar el navegador.
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000
+let refreshTimer = null
+
+const startAutoRefresh = () => {
+  stopAutoRefresh()
+  refreshTimer = setInterval(() => {
+    loadData()
+    loadAlerts()
+  }, REFRESH_INTERVAL_MS)
+}
+const stopAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
+}
+
 // Dispara la carga de datos apenas alguien queda autenticado, sin importar
 // si fue por sesión restaurada al abrir la app o por el formulario de login.
 watch(user, (newUser, oldUser) => {
   if (newUser && !oldUser) {
     loadData()
     loadAlerts()
+    startAutoRefresh()
+  } else if (!newUser && oldUser) {
+    stopAutoRefresh()
   }
 })
 
