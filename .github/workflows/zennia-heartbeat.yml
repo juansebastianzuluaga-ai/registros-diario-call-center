@@ -13,9 +13,9 @@ jobs:
       APP_ENV: production
       DB_CONNECTION: supabase
       SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
-      SUPABASE_DB_PORT: '5432'
+      SUPABASE_DB_PORT: '6543'
       SUPABASE_DB_DATABASE: postgres
-      SUPABASE_DB_USERNAME: postgres
+      SUPABASE_DB_USERNAME: postgres.pxqsjgaihautttwbnwve
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       ZENNIA_BASE_URL: https://cac-santabarbara.zennia.io
       ZENNIA_USERNAME: ${{ secrets.ZENNIA_USERNAME }}

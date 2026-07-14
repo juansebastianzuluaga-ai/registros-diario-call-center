@@ -102,12 +102,17 @@ return [
         // Production database (Supabase Postgres). Kept separate from the
         // default 'mysql' connection so local dev via Laragon is untouched;
         // GitHub Actions sets DB_CONNECTION=supabase to write here instead.
+        //
+        // Uses the Supavisor session/transaction pooler (aws-*.pooler.supabase.com),
+        // not the direct "db.<ref>.supabase.co" host — the direct host is
+        // IPv6-only, and GitHub-hosted runners (and some local networks)
+        // have no IPv6 route, so the direct connection fails there.
         'supabase' => [
             'driver' => 'pgsql',
-            'host' => env('SUPABASE_DB_HOST', 'db.pxqsjgaihautttwbnwve.supabase.co'),
-            'port' => env('SUPABASE_DB_PORT', '5432'),
+            'host' => env('SUPABASE_DB_HOST', 'aws-1-us-west-2.pooler.supabase.com'),
+            'port' => env('SUPABASE_DB_PORT', '6543'),
             'database' => env('SUPABASE_DB_DATABASE', 'postgres'),
-            'username' => env('SUPABASE_DB_USERNAME', 'postgres'),
+            'username' => env('SUPABASE_DB_USERNAME', 'postgres.pxqsjgaihautttwbnwve'),
             'password' => env('SUPABASE_DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
